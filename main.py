@@ -11,8 +11,17 @@ ydl_opts = {
     "outtmpl": "%(title)s.%(ext)s",
 }
 
+offset = 1
 
 if len(sys.argv) > 1:
+    if sys.argv[1] == 'mp3':
+        ydl_opts["format"] = "bestaudio/best"
+        ydl_opts["postprocessors"] = [{
+    "key": "FFmpegExtractAudio",
+    "preferredcodec": "mp3",
+    "preferredquality": "192",
+}]
+        offset += 1
     with dlp.YoutubeDL(ydl_opts) as ydl:
-        for url in sys.argv[1:]:
+        for url in sys.argv[offset:]:
             ydl.download([url])
