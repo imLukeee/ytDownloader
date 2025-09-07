@@ -1,27 +1,23 @@
-import yt_dlp as dlp
-import sys
+from YTdownload import *
+from gui import App
 
 #url = 'https://youtu.be/dQw4w9WgXcQ' #Rickroll
 #url = 'https://youtu.be/3glOUPtVIpU' #901 shelby drive
 
+# https://youtu.be/dQw4w9WgXcQ https://youtu.be/3glOUPtVIpU
 
-ydl_opts = {
-    "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-    "merge_output_format": "mp4",
-    "outtmpl": "%(title)s.%(ext)s",
-}
+def main():
+    url_list = ['https://youtu.be/3glOUPtVIpU']
+    format = 'mp4'
 
-offset = 1
+    if len(sys.argv) > 1:
+        format = sys.argv[1] if sys.argv[1] in ('mp3', 'mp4') else 'mp4'
+        url_list = sys.argv[2:] if sys.argv[1] in ('mp3', 'mp4') else sys.argv[1:]
 
-if len(sys.argv) > 1:
-    if sys.argv[1] == 'mp3':
-        ydl_opts["format"] = "bestaudio/best"
-        ydl_opts["postprocessors"] = [{
-    "key": "FFmpegExtractAudio",
-    "preferredcodec": "mp3",
-    "preferredquality": "192",
-}]
-        offset += 1
-    with dlp.YoutubeDL(ydl_opts) as ydl:
-        for url in sys.argv[offset:]:
-            ydl.download([url])
+        YTdownload(url_list, format)
+
+    else:
+        App()
+
+if __name__ == '__main__':
+    main()
