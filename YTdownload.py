@@ -1,7 +1,7 @@
 import yt_dlp as dlp
 import sys
 
-def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = None|int):
+def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = None):
     #default options
     ydl_options = {
     "format": f"bestvideo[{'bestvideo[height<={quality}]' if quality != None else 'ext=mp4'}]+bestaudio[ext=m4a]/best[ext=mp4]",
@@ -11,7 +11,7 @@ def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = Non
     "subtitleslangs": ["en"],
     "subtitlesformat": "srt"}
 
-    if (len(sys.argv) > 1 and sys.argv[1] == "mp3") or format == 'mp3':
+    if (len(sys.argv) > 1 and sys.argv[1].lower() == "mp3") or format.lower() == 'mp3':
         ydl_options["format"] = "bestaudio/best"
         ydl_options["postprocessors"] = [{
         "key": "FFmpegExtractAudio",

@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from settings import *
+from ui_components import *
+from YTdownload import YTdownload
 
 ctk.set_default_color_theme('Anthracite.json')
 
@@ -17,6 +19,11 @@ class App(ctk.CTk):
         self.title(TITLE)
         self.geometry(f'{APP_SIZE[0]}x{APP_SIZE[1]}+{x}+{y}')
 
+        #variables
+        self.FormatVar = ctk.StringVar(value = 'MP4')
+        self.SubtitleVar = ctk.StringVar(value = 'NO SUB')
+        self.UrlVar = ctk.StringVar(value = '')
+
         #widgets
         self.create_widgets()
 
@@ -24,15 +31,21 @@ class App(ctk.CTk):
 
     def create_widgets(self):
         self.Title = TitleLabel(self)
-        self.UrlFrame = UrlFrame(self)
-        self.OptionButtonsFrame = OptionButtonsFrame(self)
+        self.UrlFrame = UrlFrame(self, self.UrlVar)
+        self.OptionButtonsFrame = OptionButtonsFrame(self, self.FormatVar, self.SubtitleVar, self.UrlVar)
+        self.VideoInfoFrame = VideoInfoFrame(self)
+        self.ProgressBarFrame = DownloadProgressFrame(self)
+
+    def download(self):
+        YTdownload([self.UrlVar.get()], self.SubtitleVar.get(), self.SubtitleVar.get())
 
 
 class TitleLabel(ctk.CTkLabel):
     def __init__(self, parent):
         super().__init__(master = parent,
                        text = 'YT Downloader',
-                       font = ctk.CTkFont('JetBrains Mono', 64, 'bold'))
+                       font = ctk.CTkFont(*TITLE_FONT_DATA),
+                       text_color = FONT_COLOR)
 
         self.place(relx = 0.5,
                    rely = 0.05,
@@ -42,12 +55,13 @@ class TitleLabel(ctk.CTkLabel):
 
     
 class UrlFrame(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, url_var):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 1)
         
-        self.widget_font = ctk.CTkFont('JetBrains Mono', 32, 'normal')
+        self.widget_font = ctk.CTkFont(*WIDGET_FONT_DATA)
+        self.UrlVar = url_var
 
         self.place(relx = 0,
                    rely = 0.15,
@@ -57,11 +71,14 @@ class UrlFrame(ctk.CTkFrame):
         
         self.instruction = ctk.CTkLabel(self,
                                         font = self.widget_font,
-                                        text = 'Insert a valid URL')
+                                        text = 'Insert a valid URL',
+                                        text_color = FONT_COLOR)
         
         self.url_entry = ctk.CTkEntry(self,
                                       font = self.widget_font,
-                                      corner_radius = 12)
+                                      corner_radius = 12,
+                                      text_color = INPUT_FIELD_COLOR,
+                                      textvariable = self.UrlVar)
         
         self.instruction.place(relx = 0.5,
                                rely = 0.2,
@@ -71,13 +88,13 @@ class UrlFrame(ctk.CTkFrame):
         
         self.url_entry.place(relx = 0.5,
                              rely = 0.6,
-                             relwidth = 0.6,
+                             relwidth = 0.7,
                              relheight = 0.4,
                              anchor = 'center')
         
 
 class OptionButtonsFrame(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, format_var, subititle_var, url_var):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 1)
@@ -85,5 +102,48 @@ class OptionButtonsFrame(ctk.CTkFrame):
         self.place(relx = 0,
                    rely = 0.35,
                    relwidth = 1,
-                   relheight = 0.15,
+                   relheight = 0.1,
+                   anchor = 'nw')
+    
+        self.FormatVar = format_var
+        self.SubtitleVar = subititle_var
+        self.UrlVar = url_var
+        self.MainWindow = parent
+
+        self.format_selector = OptionSelector(self,
+                                              values = ['MP3', 'MP4'],
+                                              variable = self.FormatVar,
+                                              relx = 0.15)
+        
+        self.subtitle_selector = OptionSelector(self,
+                                                values = ['SUB', 'NO SUB'],
+                                                variable = self.SubtitleVar,
+                                                relx = 0.4)
+        
+        self.download_button = DownloadButton(self, command = self.MainWindow.download)
+
+
+class VideoInfoFrame(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(master = parent,
+                         fg_color = 'transparent',
+                         border_width = 1)
+        
+        self.place(relx = 0,
+                   rely = 0.45,
+                   relwidth = 1,
+                   relheight = 0.35,
+                   anchor = 'nw')
+        
+
+class DownloadProgressFrame(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(master = parent,
+                         fg_color = 'transparent',
+                         border_width = 1)
+        
+        self.place(relx = 0,
+                   rely = 0.8,
+                   relwidth = 1,
+                   relheight = 0.2,
                    anchor = 'nw')
