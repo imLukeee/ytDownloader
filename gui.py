@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from settings import *
 from ui_components import *
-from YTdownload import YTdownload
+from YTdownload import YTdownload, YT_video_info
 
 ctk.set_default_color_theme('Anthracite.json')
 
@@ -24,6 +24,9 @@ class App(ctk.CTk):
         self.SubtitleVar = ctk.StringVar(value = SUBTITLE_VALUES[0])
         self.UrlVar = ctk.StringVar(value = '')
 
+        self.VideoInfoFrame = None
+        self.ProgressBarFrame = None
+
         #widgets
         self.create_widgets()
 
@@ -31,14 +34,26 @@ class App(ctk.CTk):
 
     def create_widgets(self):
         self.Title = TitleLabel(self)
-        self.UrlFrame = UrlFrame(self, self.UrlVar)
+        self.UrlFrame = UrlFrame(self, self.UrlVar, self.get_video_info)
         self.OptionButtonsFrame = OptionButtonsFrame(self, self.FormatVar, self.SubtitleVar, self.UrlVar)
-        self.VideoInfoFrame = VideoInfoFrame(self)
-        self.ProgressBarFrame = DownloadProgressFrame(self)
+        #self.VideoInfoFrame = VideoInfoFrame(self)
+        #self.ProgressBarFrame = DownloadProgressFrame(self)
 
     def download(self):
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
         YTdownload([self.UrlVar.get()], self.FormatVar.get(), subtitle_bool)
+        self.ProgressBarFrame = DownloadProgressFrame(self)
+
+    def get_video_info(self):
+        if self.VideoInfoFrame:
+            self.VideoInfoFrame.destroy()
+
+        info_list = YT_video_info(self.UrlVar.get())
+        self.video_title, self.video_author = info_list[0], info_list[2]
+        self.video_duration = f'{info_list[1] // 60}:{info_list[1]%60}'
+
+        if info_list:
+            self.VideoInfoFrame = VideoInfoFrame(self, self.video_title, self.video_duration, self.video_author)
 
 
 class TitleLabel(ctk.CTkLabel):
@@ -56,7 +71,7 @@ class TitleLabel(ctk.CTkLabel):
 
     
 class UrlFrame(ctk.CTkFrame):
-    def __init__(self, parent, url_var):
+    def __init__(self, parent, url_var, get_video_info_func):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 1)
@@ -93,6 +108,7 @@ class UrlFrame(ctk.CTkFrame):
                              relheight = 0.4,
                              anchor = 'center')
         
+        self.url_entry.bind('<Return>', lambda e: get_video_info_func())
 
 class OptionButtonsFrame(ctk.CTkFrame):
     def __init__(self, parent, format_var, subititle_var, url_var):
@@ -125,7 +141,7 @@ class OptionButtonsFrame(ctk.CTkFrame):
 
 
 class VideoInfoFrame(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, video_title, video_duration, video_author):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 1)
@@ -135,6 +151,10 @@ class VideoInfoFrame(ctk.CTkFrame):
                    relwidth = 1,
                    relheight = 0.35,
                    anchor = 'nw')
+        
+        VideoInfoLabel(self, 'Title', video_title, 0.15)
+        VideoInfoLabel(self, 'Duration', video_duration, 0.35)
+        VideoInfoLabel(self, 'Author', video_author, 0.55)
         
 
 class DownloadProgressFrame(ctk.CTkFrame):

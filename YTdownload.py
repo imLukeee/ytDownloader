@@ -24,3 +24,9 @@ def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = Non
             ydl.download(url_list)
     else:
         print("No URL provided.")
+
+
+def YT_video_info(url):
+    with dlp.YoutubeDL() as ydl:
+        info = ydl.extract_info(url, download=False)
+        return info['title'], info['duration'], info['uploader']
