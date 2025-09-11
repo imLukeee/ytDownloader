@@ -4,6 +4,8 @@ APP_SIZE = (1000, 1000)
 MIN_SIZE = (500, 500)
 
 RESIZIBLE = (True, True)
+SUBTITLE_VALUES = ('NO CC','CC')
+FORMAT_VALUES = ('MP4', 'MP3')
 
 TITLE_FONT_DATA = ('JetBrains Mono', 64, 'bold')
 WIDGET_FONT_DATA = ('JetBrains Mono', 32, 'normal')

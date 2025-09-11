@@ -20,8 +20,8 @@ class App(ctk.CTk):
         self.geometry(f'{APP_SIZE[0]}x{APP_SIZE[1]}+{x}+{y}')
 
         #variables
-        self.FormatVar = ctk.StringVar(value = 'MP4')
-        self.SubtitleVar = ctk.StringVar(value = 'NO SUB')
+        self.FormatVar = ctk.StringVar(value = FORMAT_VALUES[0])
+        self.SubtitleVar = ctk.StringVar(value = SUBTITLE_VALUES[0])
         self.UrlVar = ctk.StringVar(value = '')
 
         #widgets
@@ -37,7 +37,8 @@ class App(ctk.CTk):
         self.ProgressBarFrame = DownloadProgressFrame(self)
 
     def download(self):
-        YTdownload([self.UrlVar.get()], self.SubtitleVar.get(), self.SubtitleVar.get())
+        subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
+        YTdownload([self.UrlVar.get()], self.FormatVar.get(), subtitle_bool)
 
 
 class TitleLabel(ctk.CTkLabel):
@@ -111,12 +112,12 @@ class OptionButtonsFrame(ctk.CTkFrame):
         self.MainWindow = parent
 
         self.format_selector = OptionSelector(self,
-                                              values = ['MP3', 'MP4'],
+                                              values = FORMAT_VALUES,
                                               variable = self.FormatVar,
                                               relx = 0.15)
         
         self.subtitle_selector = OptionSelector(self,
-                                                values = ['SUB', 'NO SUB'],
+                                                values = SUBTITLE_VALUES,
                                                 variable = self.SubtitleVar,
                                                 relx = 0.4)
         

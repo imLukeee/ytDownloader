@@ -8,10 +8,10 @@ def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = Non
     "merge_output_format": "mp4",
     "outtmpl": "%(title)s.%(ext)s",
     "writesubtitles": subtitles,
-    "subtitleslangs": ["en"],
+    "subtitleslangs": ["en", "pl"],
     "subtitlesformat": "srt"}
 
-    if (len(sys.argv) > 1 and sys.argv[1].lower() == "mp3") or format.lower() == 'mp3':
+    if format.lower() == 'mp3':
         ydl_options["format"] = "bestaudio/best"
         ydl_options["postprocessors"] = [{
         "key": "FFmpegExtractAudio",
