@@ -1,7 +1,7 @@
 import yt_dlp as dlp
 import sys
 
-def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = None):
+def YTdownload(progress_hook ,url_list = None, format = 'mp4', subtitles = False, quality = None):
     #default options
     ydl_options = {
     "format": f"bestvideo[{'bestvideo[height<={quality}]' if quality != None else 'ext=mp4'}]+bestaudio[ext=m4a]/best[ext=mp4]",
@@ -9,7 +9,10 @@ def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = Non
     "outtmpl": "%(title)s.%(ext)s",
     "writesubtitles": subtitles,
     "subtitleslangs": ["en", "pl"],
-    "subtitlesformat": "srt"}
+    "subtitlesformat": "srt",
+    "progress_hooks": [progress_hook],
+    "quiet": False,
+    "no_warnings": False}
 
     if format.lower() == 'mp3':
         ydl_options["format"] = "bestaudio/best"
@@ -29,4 +32,9 @@ def YTdownload(url_list = None, format = 'mp4', subtitles = False, quality = Non
 def YT_video_info(url):
     with dlp.YoutubeDL() as ydl:
         info = ydl.extract_info(url, download=False)
-        return info['title'], info['duration'], info['uploader']
+        return {
+            'title': info.get('title'),
+            'duration': info.get('duration'),
+            'channel': info.get('uploader'),
+            'thumbnail': info.get('thumbnail')
+        }
