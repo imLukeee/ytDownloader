@@ -65,6 +65,16 @@ class DownloadProgressBar(ctk.CTkProgressBar):
                    anchor = 'center')
         
 
+class DownloadLabel(ctk.CTkLabel):
+    def __init__(self, parent, strvar):
+        super().__init__(master = parent, textvariable = strvar)
+
+        self.place(relx = 0.5,
+                   rely = 0.75,
+                   relwidth = 1,
+                   anchor = 'center')
+        
+
 class ThumbnailPreview(ctk.CTkCanvas):
     def __init__(self, parent, thumbnail_url):
         super().__init__(master = parent, 

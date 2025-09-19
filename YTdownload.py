@@ -1,7 +1,7 @@
 import yt_dlp as dlp
 import sys
 
-def YTdownload(progress_hook ,url_list = None, format = 'mp4', subtitles = False, quality = None):
+def YTdownload(progress_hook = None ,url_list = None, format = 'mp4', subtitles = False, quality = None, cli = False):
     #default options
     ydl_options = {
     "format": f"bestvideo[{'bestvideo[height<={quality}]' if quality != None else 'ext=mp4'}]+bestaudio[ext=m4a]/best[ext=mp4]",
@@ -9,10 +9,14 @@ def YTdownload(progress_hook ,url_list = None, format = 'mp4', subtitles = False
     "outtmpl": "%(title)s.%(ext)s",
     "writesubtitles": subtitles,
     "subtitleslangs": ["en", "pl"],
-    "subtitlesformat": "srt",
-    "progress_hooks": [progress_hook],
-    "quiet": False,
-    "no_warnings": False}
+    "subtitlesformat": "srt",}
+
+    if not cli and progress_hook:
+        ydl_options["progress_hooks"] = [progress_hook]
+        ydl_options["quiet"] = True
+        ydl_options["no_warnings"] = True
+        ydl_options["no_color"] = True
+        ydl_options["noprogress"] = True
 
     if format.lower() == 'mp3':
         ydl_options["format"] = "bestaudio/best"

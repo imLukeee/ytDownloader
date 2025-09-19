@@ -11,7 +11,7 @@ def main():
         format = sys.argv[1].lower() if sys.argv[1].lower() in ('mp3', 'mp4') else 'mp4'
         url_list = sys.argv[2:] if format in ('mp3', 'mp4') else sys.argv[1:]
 
-        YTdownload(url_list, format)
+        YTdownload(url_list = url_list, format = format, cli = True)
 
     else:
         App()

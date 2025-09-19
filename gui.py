@@ -25,6 +25,7 @@ class App(ctk.CTk):
         self.FormatVar = ctk.StringVar(value = FORMAT_VALUES[0])
         self.SubtitleVar = ctk.StringVar(value = SUBTITLE_VALUES[0])
         self.UrlVar = ctk.StringVar(value = '')
+        self.ProgressStr = ctk.StringVar(value = '')
 
         self.DownloadPercent = ctk.DoubleVar(value = 0)
         self.VideoInfoDict = None
@@ -47,7 +48,7 @@ class App(ctk.CTk):
             self.get_video_info()
 
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
-        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent)
+        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent, self.ProgressStr)
 
         #run background thread
         threading.Thread(target = YTdownload,
@@ -71,6 +72,13 @@ class App(ctk.CTk):
         downloaded = d.get('downloaded_bytes', 0)
         total = d.get('total_bytes', 1)
         percent = downloaded / total 
+
+        progress_str = f'{round((percent*100),1)}% of {d.get('_total_bytes_str').strip()}\nSpeed: {d.get('_speed_str', '').strip()} ETA: {d.get('_eta_str', '').strip()}'
+
+        if percent*100 >= 100:
+            progress_str = f'Download Finished'
+
+        self.ProgressStr.set(progress_str)
         self.DownloadPercent.set(percent)
 
 
@@ -163,7 +171,7 @@ class VideoInfoFrame(ctk.CTkFrame):
     def __init__(self, parent, video_title, video_duration, video_author, thumbnail_url):
         super().__init__(master = parent,
                          fg_color = 'transparent',
-                         border_width = 1)
+                         border_width = 0)
         
         self.place(relx = 0,
                    rely = 0.45,
@@ -178,10 +186,10 @@ class VideoInfoFrame(ctk.CTkFrame):
         
 
 class DownloadProgressFrame(ctk.CTkFrame):
-    def __init__(self, parent, percent_var):
+    def __init__(self, parent, percent_var, progress_str):
         super().__init__(master = parent,
                          fg_color = 'transparent',
-                         border_width = 1)
+                         border_width = 0)
         
         self.place(relx = 0,
                    rely = 0.8,
@@ -190,3 +198,4 @@ class DownloadProgressFrame(ctk.CTkFrame):
                    anchor = 'nw')
         
         self.progress_bar = DownloadProgressBar(self, percent_var)
+        self.proress_label = DownloadLabel(self, progress_str)
