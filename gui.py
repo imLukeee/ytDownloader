@@ -71,15 +71,15 @@ class App(ctk.CTk):
     def progress_hook(self, d):
         downloaded = d.get('downloaded_bytes', 0)
         total = d.get('total_bytes', 1)
-        percent = downloaded / total 
+        percent_float = downloaded / total 
 
-        progress_str = f'{round((percent*100),1)}% of {d.get('_total_bytes_str').strip()}\nSpeed: {d.get('_speed_str', '').strip()} ETA: {d.get('_eta_str', '').strip()}'
+        progress_str = f'{round((percent_float*100),1)}% of {d.get('_total_bytes_str').strip()}\nSpeed: {d.get('_speed_str', '').strip()} ETA: {d.get('_eta_str', '').strip()}'
 
-        if percent*100 >= 100:
+        if percent_float*100 >= 100:
             progress_str = f'Download Finished'
 
         self.ProgressStr.set(progress_str)
-        self.DownloadPercent.set(percent)
+        self.DownloadPercent.set(percent_float)
 
 
 class TitleLabel(ctk.CTkLabel):

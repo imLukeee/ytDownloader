@@ -60,7 +60,7 @@ class DownloadProgressBar(ctk.CTkProgressBar):
                          )
         
         self.place(relx = 0.5,
-                   rely = 0.5,
+                   rely = 0.35,
                    relwidth = 0.8,
                    anchor = 'center')
         
@@ -70,7 +70,7 @@ class DownloadLabel(ctk.CTkLabel):
         super().__init__(master = parent, textvariable = strvar)
 
         self.place(relx = 0.5,
-                   rely = 0.75,
+                   rely = 0.15,
                    relwidth = 1,
                    anchor = 'center')
         
