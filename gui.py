@@ -2,7 +2,9 @@ import customtkinter as ctk
 from settings import *
 from ui_components import *
 from YTdownload import YTdownload, YT_video_info
-import threading
+import threading, platform, subprocess, os
+from pathlib import Path
+from tkinter import filedialog
 
 ctk.set_default_color_theme('Anthracite.json')
 
@@ -26,6 +28,7 @@ class App(ctk.CTk):
         self.SubtitleVar = ctk.StringVar(value = SUBTITLE_VALUES[0])
         self.UrlVar = ctk.StringVar(value = '')
         self.ProgressStr = ctk.StringVar(value = '')
+        self.SaveLocationStr = ctk.StringVar(value = str(Path.home() / "Downloads"))
 
         self.DownloadPercent = ctk.DoubleVar(value = 0)
         self.VideoInfoDict = None
@@ -48,7 +51,7 @@ class App(ctk.CTk):
             self.get_video_info()
 
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
-        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent, self.ProgressStr)
+        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent, self.ProgressStr, self.open_save_location)
 
         #run background thread
         threading.Thread(target = YTdownload,
@@ -80,6 +83,18 @@ class App(ctk.CTk):
 
         self.ProgressStr.set(progress_str)
         self.DownloadPercent.set(percent_float)
+
+    def open_save_location(self):
+        system = platform.system()
+
+        if system == "Windows":
+            subprocess.run(f'explorer /select,"{self.SaveLocationStr.get()}"')
+        elif system == "Darwin": #macOS
+            subprocess.run(["open", "-R", self.SaveLocationStr.get()])
+        elif system == "Linux":
+            subprocess.run(["xdg-open", os.path.dirname(self.SaveLocationStr.get())])
+        else:
+            raise NotImplementedError(f"OS {system} not supported")
 
 
 class TitleLabel(ctk.CTkLabel):
@@ -186,7 +201,7 @@ class VideoInfoFrame(ctk.CTkFrame):
         
 
 class DownloadProgressFrame(ctk.CTkFrame):
-    def __init__(self, parent, percent_var, progress_str):
+    def __init__(self, parent, percent_var, progress_str, open_save_location_function):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 0)
@@ -197,5 +212,6 @@ class DownloadProgressFrame(ctk.CTkFrame):
                    relheight = 0.2,
                    anchor = 'nw')
         
-        self.progress_bar = DownloadProgressBar(self, percent_var)
         self.proress_label = DownloadLabel(self, progress_str)
+        self.progress_bar = DownloadProgressBar(self, percent_var)
+        self.open_save_location_button = OpenSaveLocationButton(self, open_save_location_function)

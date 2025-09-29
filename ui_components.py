@@ -75,6 +75,23 @@ class DownloadLabel(ctk.CTkLabel):
                    anchor = 'center')
         
 
+class OpenSaveLocationButton(ctk.CTkButton):
+    def __init__(self, parent, open_save_loc_func):
+        super().__init__(master = parent,
+                         command = open_save_loc_func,
+                         text = 'Open Save Folder',
+                         text_color = FONT_COLOR,
+                         fg_color = '#242424',
+                         font = ctk.CTkFont('Trebuchet MS', 16, 'normal'),
+                         corner_radius = 12)
+
+        self.place(relx = 0.5,
+                   rely = 0.75,
+                   relwidth = 0.25,
+                   relheight = 0.15,
+                   anchor = 'center')
+        
+
 class ThumbnailPreview(ctk.CTkCanvas):
     def __init__(self, parent, thumbnail_url):
         super().__init__(master = parent, 

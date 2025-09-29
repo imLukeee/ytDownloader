@@ -1,15 +1,17 @@
 import yt_dlp as dlp
-import sys
+from pathlib import Path
+import os
 
-def YTdownload(progress_hook = None ,url_list = None, format = 'mp4', subtitles = False, quality = None, cli = False):
+def YTdownload(progress_hook = None ,url_list = None, format = 'mp4', subtitles = False, quality = None, cli = False, save_location = None):
     #default options
     ydl_options = {
     "format": f"bestvideo[{'bestvideo[height<={quality}]' if quality != None else 'ext=mp4'}]+bestaudio[ext=m4a]/best[ext=mp4]",
     "merge_output_format": "mp4",
-    "outtmpl": "%(title)s.%(ext)s",
     "writesubtitles": subtitles,
     "subtitleslangs": ["en", "pl"],
-    "subtitlesformat": "srt",}
+    "subtitlesformat": "srt",
+    "outtmpl": os.path.join(str(Path.home() / "Downloads"), "%(title)s.%(ext)s") if save_location == None else save_location
+    }
 
     if not cli and progress_hook:
         ydl_options["progress_hooks"] = [progress_hook]
