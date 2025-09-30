@@ -45,22 +45,28 @@ class App(ctk.CTk):
         self.Title = TitleLabel(self)
         self.UrlFrame = UrlFrame(self, self.UrlVar, self.get_video_info)
         self.OptionButtonsFrame = OptionButtonsFrame(self, self.FormatVar, self.SubtitleVar, self.UrlVar)
+        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent, self.ProgressStr, self.open_save_location, self.SaveLocationStr)
+
 
     def download(self):
         if not self.VideoInfoDict:
             self.get_video_info()
 
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
-        self.ProgressBarFrame = DownloadProgressFrame(self, self.DownloadPercent, self.ProgressStr, self.open_save_location)
 
         #run background thread
         threading.Thread(target = YTdownload,
-                         args = (self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool),
+                         args = (self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool, self.SaveLocationStr.get()),
                          daemon = True).start()
 
     def get_video_info(self):
         if self.VideoInfoFrame:
             self.VideoInfoFrame.destroy()
+            self.VideoInfoFrame = None
+
+        if self.UrlVar.get() == '':
+            self.VideoInfoDict = None
+            return
 
         self.VideoInfoDict = YT_video_info(self.UrlVar.get())
         self.video_title = self.VideoInfoDict['title']
@@ -68,8 +74,7 @@ class App(ctk.CTk):
         self.video_duration = f'{self.VideoInfoDict['duration'] // 60} m : {self.VideoInfoDict['duration']%60} s'
         self.thumbnail = self.VideoInfoDict['thumbnail']
 
-        if self.VideoInfoDict:
-            self.VideoInfoFrame = VideoInfoFrame(self, self.video_title, self.video_duration, self.channel, self.thumbnail)
+        self.VideoInfoFrame = VideoInfoFrame(self, self.video_title, self.video_duration, self.channel, self.thumbnail)
 
     def progress_hook(self, d):
         downloaded = d.get('downloaded_bytes', 0)
@@ -79,7 +84,7 @@ class App(ctk.CTk):
         progress_str = f'{round((percent_float*100),1)}% of {d.get('_total_bytes_str').strip()}\nSpeed: {d.get('_speed_str', '').strip()} ETA: {d.get('_eta_str', '').strip()}'
 
         if percent_float*100 >= 100:
-            progress_str = f'Download Finished'
+            progress_str = f'\nDownload Finished'
 
         self.ProgressStr.set(progress_str)
         self.DownloadPercent.set(percent_float)
@@ -201,7 +206,7 @@ class VideoInfoFrame(ctk.CTkFrame):
         
 
 class DownloadProgressFrame(ctk.CTkFrame):
-    def __init__(self, parent, percent_var, progress_str, open_save_location_function):
+    def __init__(self, parent, percent_var, progress_str, open_save_location_function, save_path_strvar):
         super().__init__(master = parent,
                          fg_color = 'transparent',
                          border_width = 0)
@@ -215,3 +220,5 @@ class DownloadProgressFrame(ctk.CTkFrame):
         self.proress_label = DownloadLabel(self, progress_str)
         self.progress_bar = DownloadProgressBar(self, percent_var)
         self.open_save_location_button = OpenSaveLocationButton(self, open_save_location_function)
+        self.save_location_label = SaveLocationLabel(self, save_path_strvar)
+        self.save_settings_button = SaveSettingsButton(self, save_path_strvar)

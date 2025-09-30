@@ -3,6 +3,7 @@ from settings import *
 from PIL import Image, ImageTk
 import requests
 from io import BytesIO
+from tkinter import filedialog
 
 
 class OptionSelector(ctk.CTkSegmentedButton):
@@ -141,3 +142,44 @@ class ThumbnailPreview(ctk.CTkCanvas):
 
         self.delete('all')
         self.create_image(self.center_width, self.center_height, anchor = 'nw', image = self.imagetk)
+
+    
+class SaveSettingsButton(ctk.CTkButton):
+    def __init__(self, parent, save_path_strvar):
+        super().__init__(master = parent,
+                         text = '\u2699',
+                         text_color = FONT_COLOR,
+                         fg_color = '#242424',
+                         font = ctk.CTkFont(size = 18),
+                         corner_radius = 12,
+                         command = self.change_save_path)
+        
+        self.save_path = save_path_strvar
+        
+        self.place(relx = 0.625,
+                   rely = 0.75,
+                   relwidth = 0.05,
+                   relheight = 0.15,
+                   anchor = 'w')
+        
+
+    def change_save_path(self):
+        folder = filedialog.askdirectory()
+        self.save_path.set(folder)
+        
+
+class SaveLocationLabel(ctk.CTkLabel):
+    def __init__(self, parent, save_path_strvar):
+        super().__init__(master = parent)
+        
+        def update_text(*_):
+            self.configure(text = f'Saving to:\n{save_path_strvar.get()}')
+            
+        save_path_strvar.trace_add('write', update_text)
+        update_text()
+
+        self.place(relx = 0.5,
+                   rely = 0.55,
+                   anchor = 'center')
+        
+        
