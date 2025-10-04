@@ -49,11 +49,23 @@ class App(ctk.CTk):
 
 
     def download(self):
+        if self.VideoInfoFrame and self.DownloadPercent.get() == 1:
+            self.reset_videoinfo()
+            self.reset_progressbar()
+        
         if not self.VideoInfoDict:
             self.get_video_info()
 
+        path = os.path.join(self.SaveLocationStr.get(), self.VideoInfoDict['title'] +'.'+ self.FormatVar.get().lower())
+
+        if os.path.exists(path):
+            self.ProgressStr.set('File already downloaded!')
+            self.VideoInfoDict = None
+            return
+
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
 
+        print(self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool, self.SaveLocationStr.get())
         #run background thread
         threading.Thread(target = YTdownload,
                          args = (self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool, self.SaveLocationStr.get()),
@@ -61,8 +73,8 @@ class App(ctk.CTk):
 
     def get_video_info(self):
         if self.VideoInfoFrame:
-            self.VideoInfoFrame.destroy()
-            self.VideoInfoFrame = None
+            self.reset_videoinfo()
+            self.reset_progressbar()
 
         if self.UrlVar.get() == '':
             self.VideoInfoDict = None
@@ -100,6 +112,14 @@ class App(ctk.CTk):
             subprocess.run(["xdg-open", os.path.dirname(self.SaveLocationStr.get())])
         else:
             raise NotImplementedError(f"OS {system} not supported")
+        
+    def reset_progressbar(self):
+        self.DownloadPercent.set(0)
+        self.ProgressStr.set('')
+
+    def reset_videoinfo(self):
+        self.VideoInfoFrame.destroy()
+        self.VideoInfoFrame = None
 
 
 class TitleLabel(ctk.CTkLabel):

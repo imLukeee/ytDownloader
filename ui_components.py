@@ -57,13 +57,21 @@ class DownloadProgressBar(ctk.CTkProgressBar):
         super().__init__(master = parent,
                          orientation = 'horizontal',
                          variable = percent_var,
-                         progress_color = "#08ca1e"
-                         )
+                         progress_color = '#383e3e',)
         
+        self.percent_var = percent_var
+        self.percent_var.trace_add('write', self.update_progressbar)
+
         self.place(relx = 0.5,
                    rely = 0.35,
                    relwidth = 0.8,
                    anchor = 'center')
+        
+    def update_progressbar(self, *_):
+        if self.percent_var.get() > 0:
+            self.configure(progress_color = '#08ca1e')
+        if self.percent_var.get() == 0:
+            self.configure(progress_color = '#373e3e')
         
 
 class DownloadLabel(ctk.CTkLabel):
