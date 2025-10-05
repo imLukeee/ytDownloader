@@ -49,9 +49,14 @@ class App(ctk.CTk):
 
 
     def download(self):
+        self.UrlFrame.url_entry.configure(state = 'disable') #disable when download is started
+        #once progress reaches 100 - enable url entry
+        tid = self.DownloadPercent.trace_add('write', lambda *_: self.UrlFrame.url_entry.configure(state = 'normal' if self.DownloadPercent.get() == 1 else None))
+        
         if self.VideoInfoFrame and self.DownloadPercent.get() == 1:
             self.reset_videoinfo()
             self.reset_progressbar()
+            self.DownloadPercent.trace_remove('write', tid)
         
         if not self.VideoInfoDict:
             self.get_video_info()
@@ -59,13 +64,13 @@ class App(ctk.CTk):
         path = os.path.join(self.SaveLocationStr.get(), self.VideoInfoDict['title'] +'.'+ self.FormatVar.get().lower())
 
         if os.path.exists(path):
-            self.ProgressStr.set('File already downloaded!')
-            self.VideoInfoDict = None
+            self.ProgressStr.set('File already downloaded! ' + self.VideoInfoDict['title'])
+            self.reset_videoinfo()
+            self.UrlFrame.url_entry.configure(state = 'normal')
             return
 
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
 
-        print(self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool, self.SaveLocationStr.get())
         #run background thread
         threading.Thread(target = YTdownload,
                          args = (self.progress_hook, [self.UrlVar.get()], self.FormatVar.get(), subtitle_bool, self.SaveLocationStr.get()),
@@ -91,7 +96,7 @@ class App(ctk.CTk):
     def progress_hook(self, d):
         downloaded = d.get('downloaded_bytes', 0)
         total = d.get('total_bytes', 1)
-        percent_float = downloaded / total 
+        percent_float = downloaded / total
 
         progress_str = f'{round((percent_float*100),1)}% of {d.get('_total_bytes_str').strip()}\nSpeed: {d.get('_speed_str', '').strip()} ETA: {d.get('_eta_str', '').strip()}'
 
@@ -120,6 +125,7 @@ class App(ctk.CTk):
     def reset_videoinfo(self):
         self.VideoInfoFrame.destroy()
         self.VideoInfoFrame = None
+        self.VideoInfoDict = None
 
 
 class TitleLabel(ctk.CTkLabel):
