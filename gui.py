@@ -50,6 +50,7 @@ class App(ctk.CTk):
 
     def download(self):
         self.UrlFrame.url_entry.configure(state = 'disable') #disable when download is started
+        self.ProgressStr.set('')
         #once progress reaches 100 - enable url entry
         tid = self.DownloadPercent.trace_add('write', lambda *_: self.UrlFrame.url_entry.configure(state = 'normal' if self.DownloadPercent.get() == 1 else None))
         
@@ -61,15 +62,17 @@ class App(ctk.CTk):
         if not self.VideoInfoDict:
             self.get_video_info()
 
-        path = os.path.join(self.SaveLocationStr.get(), self.VideoInfoDict['title'] +'.'+ self.FormatVar.get().lower())
+        video_file = self.VideoInfoDict['title'] +'.'+ self.FormatVar.get().lower()
+        path = os.path.join(self.SaveLocationStr.get(), video_file)
 
         if os.path.exists(path):
-            self.ProgressStr.set('File already downloaded! ' + self.VideoInfoDict['title'])
+            self.ProgressStr.set('File already downloaded!: \n' + video_file)
             self.reset_videoinfo()
             self.UrlFrame.url_entry.configure(state = 'normal')
             return
 
         subtitle_bool = False if self.SubtitleVar.get() == SUBTITLE_VALUES[0] else True
+
 
         #run background thread
         threading.Thread(target = YTdownload,
