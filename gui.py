@@ -106,6 +106,12 @@ class App(ctk.CTk):
         if percent_float*100 >= 100:
             progress_str = f'\nDownload Finished'
 
+            info = d.get('info_dict', {})
+            subs = info.get('requested_subtitles')
+
+            if self.SubtitleVar.get() == 'CC' and not subs:
+                progress_str = 'Download Finished\nNo Subtitles Found'
+
         self.ProgressStr.set(progress_str)
         self.DownloadPercent.set(percent_float)
 
